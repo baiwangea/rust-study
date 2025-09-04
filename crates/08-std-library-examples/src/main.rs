@@ -50,7 +50,8 @@ fn option_result_examples() {
     }
 
     // Result 用于处理可能失败的操作
-    let result: Result<i32, &str> = "42".parse();
+    // 移除错误的类型标注，让编译器自动推断。使用 ::<i32> 告诉 parse 我们想要的目标类型。
+    let result = "42".parse::<i32>();
     match result {
         Ok(num) => println!("解析成功: {}", num),
         Err(e) => println!("解析失败: {}", e),

@@ -5,6 +5,7 @@ use tokio::net::{TcpListener, TcpStream};
 
 // 用于反序列化 JSON 响应的结构体
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)] // 允许字段不被读取，以消除警告
 struct Post {
     id: u32,
     title: String,

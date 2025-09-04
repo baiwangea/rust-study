@@ -3,7 +3,7 @@ use axum::{
     extract::{FromRequestParts, TypedHeader},
     headers::{authorization::Bearer, Authorization},
     http::{request::Parts, StatusCode},
-    response::{IntoResponse, Json},
+    response::Json,
     routing::{get, post},
     Router,
 };

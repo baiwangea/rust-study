@@ -36,6 +36,7 @@ impl Drawable for Button {
 
 // 定义另一个 Struct，比如一个文本输入框
 #[derive(Debug)]
+#[allow(dead_code)] // 允许字段不被读取，以消除警告
 struct SelectBox {
     width: u32,
     height: u32,
