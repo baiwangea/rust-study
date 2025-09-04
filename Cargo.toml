@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/01-log-examples",
+    "crates/02-redis-examples",
+    "crates/03-data-structures",
+    "crates/04-oop-concepts",
+    "crates/05-concurrency",
+    "crates/06-web-api",
+    "crates/07-solana-web3",
+    "crates/08-std-library-examples",
+    "crates/09-networking-examples",
+    "crates/10-delay-queue-examples",
+]
