@@ -11,4 +11,5 @@ members = [
     "crates/08-std-library-examples",
     "crates/09-networking-examples",
     "crates/10-delay-queue-examples",
+    "crates/11-common-modules",
 ]
