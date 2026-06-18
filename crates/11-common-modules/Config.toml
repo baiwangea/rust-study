@@ -1,0 +1,4 @@
+# Example Config.toml for common-modules-demo
+log_level = "debug"
+server_port = 8080
+database_url = "sqlite://:memory:"
