@@ -1,0 +1,21 @@
+[package]
+name = "grpc-tonic"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "grpc-server"
+path = "src/bin/server.rs"
+
+[[bin]]
+name = "grpc-client"
+path = "src/bin/client.rs"
+
+[dependencies]
+tonic = { workspace = true }
+prost = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+
+[build-dependencies]
+tonic-build = "0.13"

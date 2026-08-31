@@ -1,9 +1,8 @@
 [package]
-name = "redis-examples"
+name = "error-handling"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-redis = { workspace = true }
-tokio = { workspace = true }
+thiserror = { workspace = true }
 anyhow = { workspace = true }

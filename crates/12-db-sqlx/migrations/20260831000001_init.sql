@@ -1,0 +1,6 @@
+-- 初始表结构：用户账户（余额用于转账事务演示）
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    balance INTEGER NOT NULL DEFAULT 0
+);

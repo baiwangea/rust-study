@@ -1,10 +1,9 @@
 [package]
-name = "delay-queue-examples"
+name = "tokio-async"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
 tokio = { workspace = true }
 tokio-util = { workspace = true }
-chrono = { workspace = true }
-uuid = { workspace = true }
+anyhow = { workspace = true }

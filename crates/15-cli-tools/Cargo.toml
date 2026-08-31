@@ -1,12 +1,10 @@
 [package]
-name = "common-modules-demo"
+name = "cli-tools"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
+clap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-config = { workspace = true }
-tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
 anyhow = { workspace = true }

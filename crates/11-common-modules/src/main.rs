@@ -93,7 +93,7 @@ fn try_config_demo() -> Result<()> {
         .add_source(cfg::Environment::with_prefix("APP"))
         .build()?;
 
-    let mut cfg: AppConfig = settings.try_deserialize()?;
+    let cfg: AppConfig = settings.try_deserialize()?;
 
     // 如果 RUST_LOG 环境变量存在，优先使用它
     let rust_log = env::var("RUST_LOG").ok();

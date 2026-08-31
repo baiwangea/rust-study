@@ -1,9 +1,9 @@
 [package]
-name = "redis-examples"
+name = "db-sqlx"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-redis = { workspace = true }
+sqlx = { workspace = true }
 tokio = { workspace = true }
 anyhow = { workspace = true }

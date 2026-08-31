@@ -12,4 +12,63 @@ members = [
     "crates/09-networking-examples",
     "crates/10-delay-queue-examples",
     "crates/11-common-modules",
+    "crates/12-db-sqlx",
+    "crates/13-error-handling",
+    "crates/14-testing",
+    "crates/15-cli-tools",
+    "crates/16-grpc-tonic",
+    "crates/17-tokio-async",
 ]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+
+[workspace.dependencies]
+# --- 异步运行时与工具 ---
+tokio = { version = "1", features = ["full"] }
+tokio-util = "0.7"
+
+# --- 序列化 ---
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# --- 错误处理 ---
+anyhow = "1.0"
+thiserror = "2.0"
+
+# --- 日志与链路追踪 ---
+log = "0.4"
+env_logger = "0.11"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+
+# --- 时间与 ID ---
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+
+# --- Web ---
+axum = "0.8"
+jsonwebtoken = "9"
+tower = "0.5"
+tower-http = { version = "0.7", features = ["trace", "cors"] }
+# 注意：关闭默认 feature（0.13 默认引入 rustls/zeroize，与 07-solana 的旧版 zeroize 冲突），
+# 改用 native-tls（macOS 走系统 TLS 框架，不引入 rustls）。
+reqwest = { version = "0.13", default-features = false, features = ["json", "native-tls"] }
+
+# --- 数据库与缓存 ---
+sqlx = { version = "0.9", features = ["runtime-tokio", "sqlite", "macros", "migrate"] }
+redis = { version = "1", features = ["tokio-comp", "connection-manager"] }
+
+# --- 配置与 CLI ---
+config = "0.15"
+clap = { version = "4", features = ["derive"] }
+
+# --- gRPC ---
+# 注：0.14 移除了 tonic_build::compile_protos，教学示例沿用 0.13 的稳定 API
+tonic = "0.13"
+prost = "0.13"
+
+# --- 测试 ---
+proptest = "1"
