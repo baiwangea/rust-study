@@ -151,12 +151,11 @@ fn main() {
 
     // --- 3. 类型状态模式 ---
     println!("\n--- 类型状态模式：订单流转 ---");
-    let order = DraftOrder::new()
+    DraftOrder::new()
         .add_item("机械键盘")
         .add_item("鼠标垫")
         .submit() // DraftOrder -> SubmittedOrder
         .pay() // SubmittedOrder -> PaidOrder
         .ship(); // PaidOrder -> ()
     // 反例：`DraftOrder::new().ship()` 无法编译，草稿订单不能直接发货
-    let _ = order;
 }

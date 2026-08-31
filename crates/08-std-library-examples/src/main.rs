@@ -93,7 +93,7 @@ fn fs_examples() -> std::io::Result<()> {
 // 4. 迭代器 (Iterator) 与闭包 (Closure) 示例
 fn iterator_and_closure_examples() {
     println!("\n--- 4. 迭代器与闭包 ---");
-    let numbers = vec![1, 2, 3, 4, 5];
+    let numbers = [1, 2, 3, 4, 5];
 
     // 迭代器是惰性的：只有被消费时才真正执行
     let processed: Vec<i32> = numbers
@@ -103,8 +103,11 @@ fn iterator_and_closure_examples() {
         .collect();
     println!("map + filter: {:?}", processed);
 
-    let sum: i32 = numbers.iter().fold(0, |acc, &x| acc + x);
-    println!("fold 求和: {}", sum);
+    // fold 可以累积成任意类型（这里累积成字符串），比 sum 等专用方法更通用
+    let joined: String = ["a", "b", "c"]
+        .iter()
+        .fold(String::new(), |acc, &s| acc + s);
+    println!("fold 累积成字符串: {}", joined);
 
     // 三种闭包特性：
     // Fn：只读捕获（可多次调用）

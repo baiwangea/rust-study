@@ -91,8 +91,15 @@ async fn main() -> anyhow::Result<()> {
         // 中间件按添加的逆序执行：请求先经过 Trace，再经过 CORS
         .layer(CorsLayer::permissive());
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
-    println!("服务正在监听 http://127.0.0.1:3000 （Ctrl-C 优雅关闭）");
+    // 支持环境变量覆盖端口：PORT=8080 cargo run -p web-api
+    let port: u16 = std::env::var("PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(3000);
+    let addr = format!("127.0.0.1:{}", port);
+
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
+    println!("服务正在监听 http://{} （Ctrl-C 优雅关闭）", addr);
 
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())

@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("gRPC 服务正在监听: http://{}", addr);
 
     Server::builder()
-        .add_service(GreeterServer::new(GreeterService::default()))
+        .add_service(GreeterServer::new(GreeterService))
         .serve(addr)
         .await?;
 

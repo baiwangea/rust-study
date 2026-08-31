@@ -21,7 +21,7 @@ fn vec_demo() {
     numbers.push(4);
     println!("Vec: {:?}", numbers);
     // `get` 返回 Option，越界时不会 panic，比下标访问更安全
-    println!("第一个元素: {:?}, 越界访问: {:?}", numbers.get(0), numbers.get(99));
+    println!("第一个元素: {:?}, 越界访问: {:?}", numbers.first(), numbers.get(99));
 }
 
 fn hashmap_demo() {
@@ -123,6 +123,10 @@ impl<T> LinkedList<T> {
 
     pub fn len(&self) -> usize {
         self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
     }
 
     pub fn iter(&self) -> Iter<'_, T> {
