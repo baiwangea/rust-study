@@ -29,6 +29,7 @@
 - **`06-web-api`**: Web API 实战（axum 0.8、JWT 认证、统一错误响应、中间件、优雅关闭）。
 - **`11-common-modules`**: 常用模块综合（config 配置加载、tracing、env/file/thread 子命令）。
 - **`12-db-sqlx`**: 数据库实战（SQLx + SQLite：连接池、迁移、参数绑定、事务转账）。
+- **`18-pg-flex`**: PostgreSQL 灵活处理（SQLx + Postgres：任意查询→JSON、泛型 CRUD、事务、零配置编译）。需本地 PostgreSQL。
 - **`15-cli-tools`**: CLI 工具（clap 4 derive：子命令、类型化参数、JSON 持久化）。
 - **`16-grpc-tonic`**: gRPC 服务（tonic：proto 定义、服务端实现、客户端调用与状态码处理）。需本机 `protoc`。
 
@@ -96,6 +97,7 @@ All crates live under `crates/`:
 - **`06-web-api`**: Web API (axum 0.8, JWT auth, unified error responses, middleware, graceful shutdown).
 - **`11-common-modules`**: Common modules (config loading, tracing, env/file/thread subcommands).
 - **`12-db-sqlx`**: Database (SQLx + SQLite: connection pool, migrations, parameter binding, transactional transfer).
+- **`18-pg-flex`**: PostgreSQL flexible handling (SQLx + Postgres: any query → JSON, generic CRUD, transactions, zero-config compile). Requires local PostgreSQL.
 - **`15-cli-tools`**: CLI tooling (clap 4 derive: subcommands, typed arguments, JSON persistence).
 - **`16-grpc-tonic`**: gRPC (tonic: proto definition, server implementation, client calls with status-code handling). Requires `protoc`.
 
