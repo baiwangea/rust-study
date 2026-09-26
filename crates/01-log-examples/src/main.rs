@@ -19,7 +19,7 @@ fn main() {
     log::info!("程序启动 (经由 log facade 发出)");
     log::debug!("这是一个默认不可见的 debug 日志");
     log::warn!("这是一个警告信息！");
-    log::error!("发生了一个错误！");
+    // log::error!("发生了一个错误！");
 
     // --- 2. 结构化风格：tracing（支持结构化字段） ---
     info!(module = "log-examples", version = "0.1.0", "程序启动 (tracing 事件)");

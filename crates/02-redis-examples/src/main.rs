@@ -12,11 +12,15 @@ use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let client: redis::Client = redis::Client::open("redis://127.0.0.1/")?;
     // ConnectionManager 内部维护一条连接并自动重连，
     // 可 Clone 后在多个异步任务间安全共享
-    let mut con = ConnectionManager::new(client).await?;
+    let mut con: ConnectionManager = ConnectionManager::new(client).await?;
     println!("连接 Redis 成功 (ConnectionManager 自动重连模式)");
+
+    // 【重要】先清理上次运行可能残留的测试数据
+    // 避免旧数据（特别是 ZSet 中的整数分数）干扰本次示例的类型推导
+    cleanup(&mut con).await?;
 
     string_demo(&mut con).await?;
     hash_demo(&mut con).await?;
@@ -93,16 +97,18 @@ async fn set_demo(con: &mut ConnectionManager) -> Result<()> {
 async fn zset_demo(con: &mut ConnectionManager) -> Result<()> {
     println!("\n--- ZSet (ZADD/ZRANGE WITHSCORES) ---");
     let key = "demo:leaderboard";
-    let _: () = con.zadd_multiple(key, &[("alice", 100), ("bob", 200), ("carol", 150)]).await?;
+    
+    // redis-rs 1.x 中，ZSet 的分数必须使用 f64 浮点数类型
+    // 注意：虽然整数分数在 Redis 中有效，但 redis-rs 在解析 WITHSCORES 响应时
+    // 会将分数统一按浮点数处理，因此写入时也应使用浮点数以保持类型一致
+    let _: () = con.zadd(key, "alice", 100.0).await?;
+    let _: () = con.zadd(key, "bob", 200.0).await?;
+    let _: () = con.zadd(key, "carol", 150.0).await?;
 
-    // ZRANGE ... WITHSCORES 返回扁平的 (member, score) 序列，可直接解析为元组数组
-    let top: Vec<(String, i64)> = redis::cmd("ZRANGE")
-        .arg(key)
-        .arg(0)
-        .arg(-1)
-        .arg("WITHSCORES")
-        .query_async(con)
-        .await?;
+    // zrange_withscores 是 AsyncCommands trait 提供的便捷方法
+    // 直接返回 Vec<(String, f64)> 格式，无需手动解析 Redis 响应
+    // 参数：key, start(0=第一个), stop(-1=最后一个)
+    let top: Vec<(String, f64)> = con.zrange_withscores(key, 0, -1).await?;
     println!("排行榜（按分数升序）: {:?}", top);
     Ok(())
 }
@@ -120,18 +126,24 @@ async fn ttl_demo(con: &mut ConnectionManager) -> Result<()> {
 async fn pipeline_demo(con: &mut ConnectionManager) -> Result<()> {
     println!("\n--- Pipeline (atomic = MULTI/EXEC) ---");
     let mut pipe = redis::pipe();
-    pipe.atomic()
+    pipe.atomic()  // 开启事务模式（MULTI/EXEC），保证原子性
         .cmd("DEL")
         .arg("demo:pipeline_counter")
-        .incr("demo:pipeline_counter", 1)
-        .incr("demo:pipeline_counter", 1)
-        .incr("demo:pipeline_counter", 1);
+        .ignore()  // 关键：忽略 DEL 的返回值，不计入 query_async 的结果元组
+                   // 如果不调用 ignore()，DEL 会返回删除的 key 数量（通常是 0 或 1）
+                   // 这会导致返回值变成 4 元素数组而非 3 元素，无法解构为 (i64, i64, i64)
+        .incr("demo:pipeline_counter", 1)  // 第 1 次自增，返回 1
+        .incr("demo:pipeline_counter", 1)  // 第 2 次自增，返回 2
+        .incr("demo:pipeline_counter", 1); // 第 3 次自增，返回 3
+    
+    // 只接收未被 ignore 的三个 INCR 命令的返回值
     let results: (i64, i64, i64) = pipe.query_async(con).await?;
-    println!("三次 INCR 的结果（忽略 DEL）: {:?}", results);
+    println!("三次 INCR 的结果: {:?}", results);  // 输出: (1, 2, 3)
     Ok(())
 }
 
 async fn cleanup(con: &mut ConnectionManager) -> Result<()> {
+    // 使用原始 cmd 批量删除多个 key，返回删除数量（此处忽略）
     let _: () = redis::cmd("DEL")
         .arg("demo:str")
         .arg("demo:counter")
