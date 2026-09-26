@@ -18,12 +18,16 @@ async fn main() -> Result<()> {
     // - "redis://127.0.0.1/1" -> 连接到 1 号库
     // - "redis://:password@127.0.0.1/2" -> 带密码连接到 2 号库
     // - "redis://user:password@127.0.0.1:6379/3" -> 完整格式（Redis 6+ ACL）
-    let client: redis::Client = redis::Client::open("redis://127.0.0.1/3")?;
+    
+    // 使用变量动态指定数据库编号（0-15，取决于 Redis 配置）
+    let db_num = 3;  // 可以修改这个值来连接不同的数据库
+    let redis_url = format!("redis://127.0.0.1/{}", db_num);
+    let client: redis::Client = redis::Client::open(redis_url.as_str())?;
     
     // ConnectionManager 内部维护一条连接并自动重连，
     // 可 Clone 后在多个异步任务间安全共享
     let mut con: ConnectionManager = ConnectionManager::new(client).await?;
-    println!("连接 Redis 成功 (ConnectionManager 自动重连模式，使用 0 号数据库)");
+    println!("连接 Redis 成功 (ConnectionManager 自动重连模式，使用 {} 号数据库)", db_num);
 
     // 【重要】先清理上次运行可能残留的测试数据
     // 避免旧数据（特别是 ZSet 中的整数分数）干扰本次示例的类型推导
@@ -149,6 +153,52 @@ async fn pipeline_demo(con: &mut ConnectionManager) -> Result<()> {
     // 只接收未被 ignore 的三个 INCR 命令的返回值
     let results: (i64, i64, i64) = pipe.query_async(con).await?;
     println!("三次 INCR 的结果: {:?}", results);  // 输出: (1, 2, 3)
+    Ok(())
+}
+
+/// 数据库切换：演示如何在运行时切换 Redis 数据库
+async fn database_switch_demo(con: &mut ConnectionManager) -> Result<()> {
+    println!("\n--- 数据库切换 (SELECT) ---");
+    
+    // 确保当前在 0 号库
+    let _: () = redis::cmd("SELECT").arg(0).query_async(con).await?;
+    
+    // 在 0 号库写入测试数据
+    let _: () = con.set("db_test", "在 0 号库").await?;
+    let val: String = con.get("db_test").await?;
+    println!("0 号库写入并读取: {}", val);
+    
+    // 使用 SELECT 命令切换到 1 号库
+    // 注意：ConnectionManager 会记住切换后的数据库，后续命令都在该库执行
+    let _: () = redis::cmd("SELECT").arg(1).query_async(con).await?;
+    println!("已切换到 1 号数据库");
+    
+    // 在 1 号库尝试读取（应该不存在，因为是不同的数据库）
+    let val_opt: Option<String> = con.get("db_test").await?;
+    println!("1 号库读取 db_test: {:?} (应为 None，因为是不同的数据库)", val_opt);
+    
+    // 在 1 号库写入数据
+    let _: () = con.set("db_test", "在 1 号库").await?;
+    let val: String = con.get("db_test").await?;
+    println!("1 号库写入后读取: {}", val);
+    
+    // 切换回 0 号库
+    let _: () = redis::cmd("SELECT").arg(0).query_async(con).await?;
+    println!("已切换回 0 号数据库");
+    
+    // 0 号库的数据应该还在（不同数据库的数据是隔离的）
+    let val: String = con.get("db_test").await?;
+    println!("0 号库再次读取: {} (数据仍在，验证数据库隔离)", val);
+    
+    // 清理测试数据：先清理 0 号库
+    let _: () = con.del("db_test").await?;
+    // 切换到 1 号库清理
+    let _: () = redis::cmd("SELECT").arg(1).query_async(con).await?;
+    let _: () = con.del("db_test").await?;
+    // 切换回 0 号库
+    let _: () = redis::cmd("SELECT").arg(0).query_async(con).await?;
+    println!("测试数据已清理");
+    
     Ok(())
 }
 
