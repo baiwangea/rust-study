@@ -12,11 +12,18 @@ use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client: redis::Client = redis::Client::open("redis://127.0.0.1/")?;
+    // Redis 连接 URL 格式：redis://[用户名:密码@]主机[:端口][/数据库编号]
+    // 示例：
+    // - "redis://127.0.0.1/" 或 "redis://127.0.0.1/0" -> 连接到 0 号库（默认）
+    // - "redis://127.0.0.1/1" -> 连接到 1 号库
+    // - "redis://:password@127.0.0.1/2" -> 带密码连接到 2 号库
+    // - "redis://user:password@127.0.0.1:6379/3" -> 完整格式（Redis 6+ ACL）
+    let client: redis::Client = redis::Client::open("redis://127.0.0.1/3")?;
+    
     // ConnectionManager 内部维护一条连接并自动重连，
     // 可 Clone 后在多个异步任务间安全共享
     let mut con: ConnectionManager = ConnectionManager::new(client).await?;
-    println!("连接 Redis 成功 (ConnectionManager 自动重连模式)");
+    println!("连接 Redis 成功 (ConnectionManager 自动重连模式，使用 0 号数据库)");
 
     // 【重要】先清理上次运行可能残留的测试数据
     // 避免旧数据（特别是 ZSet 中的整数分数）干扰本次示例的类型推导
@@ -29,6 +36,9 @@ async fn main() -> Result<()> {
     zset_demo(&mut con).await?;
     ttl_demo(&mut con).await?;
     pipeline_demo(&mut con).await?;
+    
+    // 演示动态切换数据库
+    database_switch_demo(&mut con).await?;
 
     // 清理本次示例创建的 key
     cleanup(&mut con).await?;
