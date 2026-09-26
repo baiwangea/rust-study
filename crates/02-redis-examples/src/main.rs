@@ -22,11 +22,11 @@ async fn main() -> Result<()> {
     // 使用变量动态指定数据库编号（0-15，取决于 Redis 配置）
     let db_num = 3;  // 可以修改这个值来连接不同的数据库
     let redis_url = format!("redis://127.0.0.1/{}", db_num);
-    let client: redis::Client = redis::Client::open(redis_url.as_str())?;
+    let client = redis::Client::open(redis_url.as_str())?;
     
     // ConnectionManager 内部维护一条连接并自动重连，
     // 可 Clone 后在多个异步任务间安全共享
-    let mut con: ConnectionManager = ConnectionManager::new(client).await?;
+    let mut con = ConnectionManager::new(client).await?;
     println!("连接 Redis 成功 (ConnectionManager 自动重连模式，使用 {} 号数据库)", db_num);
 
     // 【重要】先清理上次运行可能残留的测试数据
